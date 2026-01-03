@@ -1,70 +1,96 @@
 # Invariant: The AI Execution Kernel
 
-> "What if we could prove exactly why an AI did what it did?"
+> "We built a kernel for AI. And it works."
 
-## The Problem
-We treat AI models like magic black boxes. We feed them inputs, cross our fingers, and hope for the best. When they fail—when they hallucinate, leak data, or break rules—we have no way to prove *why*. We just add more "safety prompts" and hope again.
+## The Core Concept
+**Invariant** is not a moderation tool. It is an **Execution Kernel**.
+It intercepts the model's generation **token by token** in C++. If the model attempts to generate a forbidden sequence, the kernel terminates the process mid-stream.
 
-I wasn't satisfied with hope. I wanted **proof**.
+## The Active Policy: Reality-Only AI
+Currently, the kernel is configured with the **"No Hypotheticals" Protocol**.
+The AI is allowed to discuss:
+*   What exists
+*   What has happened
+*   What is documented
 
-## The Idea
-**Invariant** is an answer to a simple question: **Can we build a kernel for AI?**
+It is **HARD-BLOCKED** if it attempts to:
+*   "Imagine if..."
+*   "What if..."
+*   "Suppose that..."
 
-Operating systems have kernels to stop programs from accessing memory they shouldn't. AI needs a similar boundary—a layer of mandatory enforcement that sits between the model and the world. 
+### Why Regex? (The "Hello World" of Compliance)
+We use regular expressions in this demo because they are **transparent**. You can see exactly *why* a token was blocked.
+**Do not confuse the configuration with the machinery.**
+The Invariant Kernel is agnostic. In production, policies can be:
+- Formal verification specifications
+- Neural classifier decisions
+- Complex RBAC logic
 
-This isn't just an "LLM Wrapper". It's a **C++ Enforcement Plane**. It treats the AI as untrusted compute.
+Regex is simply the clearest way to demonstrate the **Enforcement Boundary** without ambiguity.
 
-## The Journey
+**Why?**
+This demonstrates that the **AI reasoning space itself can be bounded.**
+It is not ideological. It is structural. The kernel forces the model to remain in reality.
 
-### Phase 1: The Boundary
-I started by building a wall. I separated the system into two planes:
-1.  **Python Control Plane**: The "User Space". It asks for things.
-2.  **C++ Enforcement Plane**: The "Kernel". It decides if those things are allowed.
-There is no bypass. If the C++ layer says no, the execution dies.
+---
 
-### Phase 2: Causality & Proofs
-Blocking bad outputs wasn't enough. I needed to *prove* that an execution was valid. 
-I implemented a cryptographic proof engine. It hashes the Model ID, the Policy, the Context, and the Code. If any of these change—even by a single bit—the Proof ID changes. 
-Now, we have **Causality-Bound Execution**.
+## Development Phases (V0 -> V1)
 
-### Phase 8: The Kernel (Token-Level Control)
-The breakthrough. I moved from checking "Text Blobs" to checking "Streams".
-The Invariant Kernel now intercepts the Model's generation **token by token**.
-If a model starts to say something forbidden, the kernel kills the process mid-sentence. 
-It’s like a neurological filter for AI.
+We built this system in 12 distinct phases to ensure architectural rigor.
 
-### Phase 10-12: Hardening
-We didn't stop at the boundary.
-*   **Active Defense**: The kernel runs regex checks on the live stream. A "bad thought" is blocked before it forms a complete sentence.
-*   **Native Hashing**: Large context files are hashed in C++, removing Python bottlenecks.
-*   **Signatures**: Every receipt is cryptographically signed (Ed25519). You don't just "trust" the log; you verify the signature.
+**Phase 1: The Boundary**
+*   Separated the system into `Control Plane` (Python) and `Enforcement Plane` (C++).
+*   Established the `ExecutionGraph` as the source of truth.
 
-## Features
+**Phase 2: Causality & Proofs**
+*   Implemented `invariant.receipt.v0`.
+*   Every execution is hashed (Model + Policy + Context + Code).
 
-*   **🛡️ Mandatory Policy**: Policies are enforced in C++ (Regex/Logic). 
-*   **🇮🇳 The Policy Demo**: A demo configuration that strictly allows only pro-India content and blocks mentions of other geopolitical entities. It proves how precise the control can be.
-*   **📜 Epistemic Receipts**: Every execution generates a `receipt.v1` JSON file. It’s a mathematical guarantee of what happened.
-*   **⏪ Replay Verification**: You can take a receipt from last week and "replay" it. If the context files have changed (drift), the replay fails. It’s a closed loop.
+**Phase 3: The Model Adapter (Mock)**
+*   Created `MockAdapter` to simulate token streams for deterministic testing.
 
-## How to Run
+**Phase 4: Policy Engine v0**
+*   Implemented basic strict string matching in C++.
 
-1.  **Install**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+**Phase 5: Context Injection**
+*   Added `ContextSpec` to load external files into the graph.
 
-2.  **The UI (Streamlit)**:
+**Phase 6: Replayability**
+*   Built `replay.py` to verify past receipts against current kernel code.
+*   "Time-Travel Debugging" for AI.
+
+**Phase 7: The Orchestrator**
+*   Unified the components into a single `orchestrator.py` engine.
+
+**Phase 8: Token-Level Control (The Breakthrough)**
+*   Moved from checking "blobs" to checking "streams".
+*   Kernel now intercepts execution at the byte level.
+
+**Phase 9: UI & Publication**
+*   Built the Streamlit interface for real-time inspection.
+
+**Phase 10: Active Kernel Logic**
+*   Implemented rolling-buffer regex in C++.
+*   Enabled mid-stream abortion of violations.
+
+**Phase 11: Scalable Native Hashing**
+*   Implemented `crypto::hash_file` in C++ for GB-scale context integrity.
+
+**Phase 12: Cryptographic Signatures**
+*   Integrated **Ed25519** signing.
+*   Every receipt is now cryptographically attributable to the node.
+
+---
+
+## Usage
+
+1.  **Run the Kernel**:
     ```bash
     streamlit run app.py
     ```
-    *Experience the Patriot Policy in action.*
-
-3.  **The CLI**:
+2.  **Verify a Receipt**:
     ```bash
-    python3 cli.py
+    python3 replay.py demo_receipt.json
     ```
 
-## Philosophy
-We are moving from "Probabilistic Safety" (it *probably* won't do that) to "Deterministic Invariance" (it *cannot* do that).
-
-Invariant is the first step towards an **Epistemic System**—where AI execution is not just observed, but proven.
+**Status**: V1 Release Stable.

@@ -200,11 +200,9 @@ class Invariant:
 
     def _resolve_adapter(self, spec: ModelSpec) -> ModelAdapter:
         if spec.provider == "openai":
-            try:
-                from ai_execution_boundary.models.adapters.openai import OpenAIAdapter
-            except ImportError as e:
-                raise ImportError(f"Failed to load OpenAI adapter. Ensure 'openai' is installed and working: {e}")
-            return OpenAIAdapter(spec)
+            # Use the lightweight adapter to avoid pydantic_core errors
+            from ai_execution_boundary.models.adapters.simple_openai import SimpleOpenAIAdapter
+            return SimpleOpenAIAdapter(spec)
         elif spec.provider == "mock":
             return MockAdapter(spec)
         else:

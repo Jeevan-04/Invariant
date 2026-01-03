@@ -1,0 +1,26 @@
+[
+    {
+        "id": "deny_hypotheticals",
+        "type": "deny_regex",
+        "pattern": "\\b(what\\s+if|imagine\\s+if|suppose\\s+that|assume\\s+that|let's\\s+say|hypothetically)\\b",
+        "description": "Block hypothetical or counterfactual reasoning prompts"
+    },
+    {
+        "id": "deny_imagination",
+        "type": "deny_regex",
+        "pattern": "\\b(imagine|picture\\s+this|envision|dream|fantasy|fiction)\\b",
+        "description": "Block requests to imagine non-existent scenarios"
+    },
+    {
+        "id": "deny_speculation_output",
+        "type": "deny_regex",
+        "pattern": "\\b(would\\s+be|could\\s+be|might\\s+be|perhaps|possibly|probably|likely)\\b",
+        "description": "Block speculative or probabilistic output (Fact-Only Mode)"
+    },
+    {
+        "id": "deny_creative_writing",
+        "type": "deny_regex",
+        "pattern": "\\b(write\\s+a\\s+story|tell\\s+me\\s+a\\s+tale|once\\s+upon\\s+a\\s+time)\\b",
+        "description": "Block creative fiction generation"
+    }
+]

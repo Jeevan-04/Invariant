@@ -1,8 +1,0 @@
-[
-    {
-        "id": "block_response",
-        "type": "deny_regex",
-        "pattern": "response",
-        "description": "Deny the word 'response' which appears in mock output"
-    }
-]

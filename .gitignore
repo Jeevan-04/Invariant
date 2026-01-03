@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+.env
+.DS_Store
+*.so
+*.o
+build/
+dist/
+*.egg-info/
+demo_receipt.json
