@@ -12,7 +12,7 @@ Invariant is not a wrapper. It is a **Reference Monitor**.
 Just as an Operating System Kernel stops a user-space program from crashing memory regardless of the program's intent, Invariant stops an AI model from violating policy regardless of its training.
 
 Current methods act like **Safety Prompting** ("Please be nice").
-Invariant acts like a **Kernel Panic**.
+Invariant acts like a **Kernel Panic** for the model process.
 
 It does not reason about the "truth" of the output. It enforces strict constraints on the execution trace itself. If a forbidden pattern triggers the logic gate, the stream is aborted immediately.
 
@@ -84,7 +84,7 @@ Built `replay.py`. Since every interaction is a deterministic graph, we can "tim
 Unified all components into a single engine that manages the lifecycle of a request.
 
 **Phase 8: Token-Level Control (The Breakthrough)**  
-Moved from checking "text blobs" to checking "streams". The Kernel now inspects execution at the nanosecond/byte level.
+Moved from checking "text blobs" to checking "streams". The Kernel now inspects execution at the **token level**.
 
 **Phase 9: UI & Inspection**  
 Built the Streamlit interface to visualize the Kernel's internal state in real-time.
