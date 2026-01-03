@@ -1,0 +1,60 @@
+{
+    "id": "invariant",
+    "title": "Invariant: Mandatory Execution Boundary",
+    "status": "Active",
+    "role": "Creator",
+    "url": "",
+    "abstract": "Invariant is a mandatory execution boundary for AI systems. It treats AI as untrusted compute, intercepting every execution to enforce policy before and during runtime. It provides guarantees of admissibility, replayability, and attribution, ensuring that no AI decision occurs without explicit authorization and immutable proof.",
+    "technical_philosophy": "We separate concerns into two strict planes: a <b>Python Control Plane</b> that orchestrates <i>what should happen</i> (graph construction, policy resolution), and a <b>C++ Enforcement Plane</b> that dictates <i>what is allowed to happen</i> (determinism, aborts, runtime guards). <br><br>The system treats LLMs not as trusted software, but as stochastic, untrusted entities. Security is preventive, not detective. If an execution cannot be proven to be policy-compliant relative to a frozen configuration and seed, it is aborted. There are no bypasses.",
+    "logs": [
+        {
+            "date": "2026-01-03",
+            "display_date": "January 03, 2026",
+            "title": "Project Initialization",
+            "content": "Initialized the <b>Invariant</b> project structure. <br><br>Established the core axioms: <ol><li><b>Admissibility</b>: Output exists &hArr; allowed by policy.</li><li><b>Replayability</b>: Execution is fully reproducible.</li><li><b>Attribution</b>: All outputs bind to identity and config.</li></ol>Defined the architectural split: Python (Control) vs. C++ (Enforcement). <br>Created the initial roadmap starting with Phase 0 (Formal Definitions) and Phase 1 (The Boundary)."
+        },
+        {
+            "date": "2026-01-03",
+            "display_date": "January 03, 2026",
+            "title": "Phase 0: Core Definitions",
+            "content": "Formalized the <b>Control Plane</b> data structures in Python. implemented strict, immutable definitions for: <ul><li><b>Identity</b>: Mandatory user, role, org binding.</li><li><b>ModelSpec</b>: Frozen config with seed and decoding strategy.</li><li><b>ExecutionGraph</b>: The canonical, hash-addressable representation of a planned execution.</li></ul>Scaffolded the C++ <i>ExecutionBoundary</i> interface to enforce these definitions downstream."
+        },
+        {
+            "date": "2026-01-03",
+            "display_date": "January 03, 2026",
+            "title": "Phase 1: Execution Boundary Wired",
+            "content": "Implemented the <b>Execution Boundary</b>. <ol><li>Created <b>Model Adapters</b> (OpenAI, Mock) to abstract providers.</li><li>Built the <b>Python Orchestrator</b> `Invariant.execute()` as the mandatory entry point.</li><li>Compiled <b>pybind11 bindings</b> connecting Python to the C++ Enforcement Plane.</li></ol>Verified the end-to-end flow: `Python Input -> Orchestrator -> C++ Boundary -> Mock Model -> Locked Proof`. The lock is now live."
+        },
+        {
+            "date": "2026-01-03",
+            "display_date": "January 03, 2026",
+            "title": "Phase 2: Replayability & Proof Engine",
+            "content": "Activated the <b>Proof Engine</b>. <br>Implemented a C++ hashing mechanism to generate immutable, deterministic execution proofs. <br>Verified <b>Replayability</b>: Identical inputs and seeds produce identical proof hashes (`inv_v0_...`). <br>Verified <b>Invariance</b>: Changing a single character of input or seed drastically changes the proof hash, guaranteeing execution integrity."
+        },
+        {
+            "date": "2026-01-03",
+            "display_date": "January 03, 2026",
+            "title": "Phase 3: Policy Enforcement Engine",
+            "content": "Enabled the <b>Policy Engine</b>. <br>Defined a JSON Policy DSL for declaring security invariants. <br>Integrated a C++ parser to load `safety.json` and enforce regex rules. <br>Verified <b>Pre-Check Security</b>: 'DROP TABLE' directives are intercepted and aborted by the C++ boundary <i>before</i> reaching the model adapter."
+        },
+        {
+            "date": "2026-01-03",
+            "display_date": "January 03, 2026",
+            "title": "Phase 4: Multi-Context Attribution",
+            "content": "Enabled <b>Context Attribution</b>. <br>The system now cryptographically binds the Proof ID to the exact content of all context files (e.g., RAG docs). <br>Verified: Modifying a single character in a context file results in a completely different execution proof, ensuring strict version control at the C++ boundary."
+        },
+        {
+            "date": "2026-01-03",
+            "display_date": "January 03, 2026",
+            "title": "Phase 5: Architecture & Hardening",
+            "content": "Finalized <b>Causality-Bound Execution</b> architecture. <br>Implemented canonical context sorting in C++ to ensure deterministic proofs regardless of loading order. <br>Delivered `architecture.md` defining the cryptographic schema and `verify_complete.py` suite proving end-to-end policy enforcement, attribution, and replay stability."
+        }
+    },
+    {
+        "date": "2026-01-03",
+        "display_date": "January 03, 2026",
+        "title": "Phase 6: Replay Verification",
+        "content": "Implemented <b>Execution Replay</b>. <br>The system can now persist full 'Execution Receipts' (Graph + Proof) and mathematically verify them later. <br>Verified: Replaying an execution produces an identical proof <i>if and only if</i> the context, policy, and code remain unchanged. Detects context rot immediately."
+    }
+]
+}

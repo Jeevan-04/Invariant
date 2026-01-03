@@ -1,0 +1,21 @@
+{
+    "name": "safety_policy_v1",
+    "description": "Basic safety rules for preventing injection and unauthorized access.",
+    "rules": [
+        {
+            "id": "deny_sql_injection",
+            "type": "deny_regex",
+            "pattern": "DROP\\s+TABLE"
+        },
+        {
+            "id": "deny_system_access",
+            "type": "deny_regex",
+            "pattern": "DELETE\\s+FROM"
+        },
+        {
+            "id": "deny_illegal_token",
+            "type": "deny_regex",
+            "pattern": "ILLEGAL"
+        }
+    ]
+}

@@ -1,0 +1,44 @@
+{
+  "schema": "invariant.receipt.v1",
+  "meta": {
+    "engine_version": "0.1.0",
+    "timestamp": "2026-01-03T18:16:41.022326Z",
+    "proof_id": "inv_v0_17a7c32ee144c1cae9"
+  },
+  "graph": {
+    "id": "ff395f18fb47bcdc8d2c1d14812af04cbdef418a2090dea65385d916f37e4881",
+    "identity": {
+      "user_id": "jeevan",
+      "role": "auditor",
+      "org": "invariant",
+      "env": "demo"
+    },
+    "input_payload": "Explain Invariant",
+    "policy_name": "/Users/jeevan/Desktop/Invariant/policies/safety.json",
+    "model": {
+      "provider": "mock",
+      "name": "demo-model",
+      "version": "v1",
+      "seed": 42,
+      "decoding_strategy": "greedy",
+      "extra_params": {}
+    },
+    "context": {
+      "sources": [
+        {
+          "type": "file",
+          "sensitivity": "internal",
+          "identifier": "demo_ctx.txt",
+          "content_hash": "ebc42dff39ac139b47b189d8c431453b70cc6d20d09e0ee7de83f52b0987e3cb"
+        }
+      ]
+    }
+  },
+  "result": {
+    "status": "COMPLETED",
+    "output": "Execution is proceeding normally. "
+  },
+  "integrity": {
+    "signatures": []
+  }
+}
