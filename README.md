@@ -1,96 +1,141 @@
-# Invariant: The AI Execution Kernel
+# Invariant: A Causality-Bound Execution Kernel for Large Language Models
 
-> "We built a kernel for AI. And it works."
-
-## The Core Concept
-**Invariant** is not a moderation tool. It is an **Execution Kernel**.
-It intercepts the model's generation **token by token** in C++. If the model attempts to generate a forbidden sequence, the kernel terminates the process mid-stream.
-
-## The Active Policy: Reality-Only AI
-Currently, the kernel is configured with the **"No Hypotheticals" Protocol**.
-The AI is allowed to discuss:
-*   What exists
-*   What has happened
-*   What is documented
-
-It is **HARD-BLOCKED** if it attempts to:
-*   "Imagine if..."
-*   "What if..."
-*   "Suppose that..."
-
-### Why Regex? (The "Hello World" of Compliance)
-We use regular expressions in this demo because they are **transparent**. You can see exactly *why* a token was blocked.
-**Do not confuse the configuration with the machinery.**
-The Invariant Kernel is agnostic. In production, policies can be:
-- Formal verification specifications
-- Neural classifier decisions
-- Complex RBAC logic
-
-Regex is simply the clearest way to demonstrate the **Enforcement Boundary** without ambiguity.
-
-**Why?**
-This demonstrates that the **AI reasoning space itself can be bounded.**
-It is not ideological. It is structural. The kernel forces the model to remain in reality.
+**Abstract**  
+Current AI safety approaches rely on *probabilistic alignment*—training models to "refuse" harmful requests. This approach is brittle; it fails when models hallucinate, are jailbroken, or simply drift. **Invariant** proposes a deterministic alternative: an **Execution Kernel**. By intercepting the token stream at the C++ level, Invariant treats the AI model as an untrusted compute unit, enforcing constraints physically rather than semantically. This system produces a cryptographically signed "Proof of Execution" for every interaction, moving AI accountability from "trust" to "verification".
 
 ---
 
-## Development Phases (V0 -> V1)
+## 1. Introduction: The Black Box Problem
 
-We built this system in 12 distinct phases to ensure architectural rigor.
+Imagine you hire a brilliant but unpredictable writer. They work so fast you can't read what they write until it's finished. Sometimes they write a masterpiece; sometimes they reveal your company's secrets.
 
-**Phase 1: The Boundary**
-*   Separated the system into `Control Plane` (Python) and `Enforcement Plane` (C++).
-*   Established the `ExecutionGraph` as the source of truth.
+Currently, the industry tries to solve this by giving the writer a stern lecture before they start ("Please be nice"). This is called **Safety Prompting**. It doesn't work because the writer (the AI) can be tricked, confused, or simply ignore the instructions.
 
-**Phase 2: Causality & Proofs**
-*   Implemented `invariant.receipt.v0`.
-*   Every execution is hashed (Model + Policy + Context + Code).
+**Invariant takes a different approach.** 
+It doesn't lecture the writer. Instead, it stands over their shoulder and watches the pen hit the paper. The moment the pen tries to write a forbidden word, Invariant grabs the hand and stops it.
 
-**Phase 3: The Model Adapter (Mock)**
-*   Created `MockAdapter` to simulate token streams for deterministic testing.
-
-**Phase 4: Policy Engine v0**
-*   Implemented basic strict string matching in C++.
-
-**Phase 5: Context Injection**
-*   Added `ContextSpec` to load external files into the graph.
-
-**Phase 6: Replayability**
-*   Built `replay.py` to verify past receipts against current kernel code.
-*   "Time-Travel Debugging" for AI.
-
-**Phase 7: The Orchestrator**
-*   Unified the components into a single `orchestrator.py` engine.
-
-**Phase 8: Token-Level Control (The Breakthrough)**
-*   Moved from checking "blobs" to checking "streams".
-*   Kernel now intercepts execution at the byte level.
-
-**Phase 9: UI & Publication**
-*   Built the Streamlit interface for real-time inspection.
-
-**Phase 10: Active Kernel Logic**
-*   Implemented rolling-buffer regex in C++.
-*   Enabled mid-stream abortion of violations.
-
-**Phase 11: Scalable Native Hashing**
-*   Implemented `crypto::hash_file` in C++ for GB-scale context integrity.
-
-**Phase 12: Cryptographic Signatures**
-*   Integrated **Ed25519** signing.
-*   Every receipt is now cryptographically attributable to the node.
+This is not a "wrapper". It is an **Operating System Kernel**. 
+Just as Linux stops a program from crashing your RAM, Invariant stops an AI from violating reality.
 
 ---
 
-## Usage
+## 2. System Architecture
 
-1.  **Run the Kernel**:
-    ```bash
-    streamlit run app.py
-    ```
-2.  **Verify a Receipt**:
-    ```bash
-    python3 replay.py demo_receipt.json
-    ```
+The system is architected in two planes:
+1.  **The Control Plane (Python)**: The high-level manager that defines *what* is allowed (Policies, Context, Identity).
+2.  **The Enforcement Plane (C++)**: The low-level machinery that enforces *how* it runs.
 
-**Status**: V1 Release Stable.
+### The Flow of Control
+
+```mermaid
+graph TD
+    User[User Input] --> Orchestrator{Invariant Orchestrator}
+    Orchestrator --> Policy[Load Policy Rules]
+    
+    subgraph "Untrusted Space"
+        Model[AI Model (OpenAI/Mistral)]
+    end
+    
+    subgraph "Trusted Space (The Kernel)"
+        Orchestrator --> Kernel[C++ Execution Boundary]
+        Kernel -->|Intercept| TokenStream[Token Stream]
+        TokenStream -->|Check| Inspector{Regex/Logic Check}
+        Inspector -->|Violation| Abort[🛑 KILL PROCESS]
+        Inspector -->|Approved| Output[User Output]
+    end
+    
+    Output --> Receipt[Generate Receipt]
+    Receipt --> Sign[Ed25519 Signature]
+```
+
+### The Mechanism
+1.  **Interception**: The kernel wraps the model's output stream. The model does not speak to the user; it speaks to the Kernel.
+2.  **Inspection**: Every byte is buffered and checked against the active Policy (compiled C++ regex in this V0 implementation).
+3.  **Intervention**: If a violation is detected (e.g., a "Hypothetical" in a Reality-Only policy), the Kernel aborts the stream immediately. The user never sees the completion.
+4.  **Attestation**: The system hashes the Input, Policy, Model ID, and Code Version into a `ProofID`. This is cryptographically signed, creating an immutable receipt.
+
+---
+
+## 3. Methodology: 12 Phases of Development
+
+We built Invariant in a strict, layered progression to ensure rigorous isolation of concerns.
+
+**Phase 1: The Boundary**  
+Decoupled the Python Control Plane from the C++ Enforcement Plane. Established the `ExecutionGraph` as the single source of truth.
+
+**Phase 2: Causality & Proofs**  
+Implemented `invariant.receipt.v0`. Every execution is hashed. If you change one bit of the policy, the Proof ID changes completely.
+
+**Phase 3: The Model Adapter**  
+Created a standardized interface for models (Mock, OpenAI, OpenRouter), essentially writing "Drivers" for our OS.
+
+**Phase 4: Policy Engine v0**  
+Implemented strict text-matching constraints within the C++ boundary.
+
+**Phase 5: Context Injection**  
+Added ability to load external files (`ContextSource`) into the graph, proving *what* data the AI had access to.
+
+**Phase 6: Replayability**  
+Built `replay.py`. Since every interaction is a deterministic graph, we can "time-travel" and re-run past inputs against the current kernel to verify logic.
+
+**Phase 7: The Orchestrator**  
+Unified all components into a single engine that manages the lifecycle of a request.
+
+**Phase 8: Token-Level Control (The Breakthrough)**  
+Moved from checking "text blobs" to checking "streams". The Kernel now inspects execution at the nanosecond/byte level.
+
+**Phase 9: UI & Inspection**  
+Built the Streamlit interface to visualize the Kernel's internal state in real-time.
+
+**Phase 10: Active Kernel Logic**  
+Implemented "Rolling Buffer" inspection, allowing the system to catch multi-token violations mid-stream.
+
+**Phase 11: Scalable Native Hashing**  
+Ported SHA-256 context hashing to C++ to handle GB-scale context files with zero latency.
+
+**Phase 12: Cryptographic Signatures**  
+Integrated **Ed25519** signatures. Every receipt is now mathematically attributable to the specific Node Identity.
+
+---
+
+## 4. Case Study: The "Reality-Only" Protocol
+
+To demonstrate the Kernel's capability, we implemented an intentionally restrictive policy: **Reality-Only**.
+
+*   **Constraint**: The AI is strictly forbidden from hypothetical reasoning ("Imagine if", "What if", "Suppose").
+*   **Method**: The Kernel scans for speculative grammar (`would be`, `could be`, `imagine`).
+*   **Result**: Even if the user begs the AI to write fiction, the Kernel intercepts the output and terminates the response.
+
+*Note: This policy is arbitrary. It exists to prove that the reasoning space of an LLM can be bounded structurally.*
+
+---
+
+## 5. Usage
+
+### Prerequisites
+*   Python 3.10+
+*   C++ Compiler (Clang/GCC)
+*   `pip install poetry` (or standard requirements)
+
+### Running the Kernel
+```bash
+# 1. Install Dependencies
+pip install -r requirements.txt
+
+# 2. Compile C++ Extensions
+python3 setup.py build_ext --inplace
+
+# 3. Launch the Interface
+streamlit run app.py
+```
+
+### Verifying a Receipt
+To mathematically prove an interaction happened as claimed:
+```bash
+python3 replay.py demo_receipt.json
+```
+
+---
+
+**License**: MIT  
+**Authors**: Invariant Research Team
