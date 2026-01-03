@@ -138,4 +138,4 @@ python3 replay.py demo_receipt.json
 ---
 
 **License**: MIT  
-**Authors**: Invariant Research Team
+**Authors**: Jeevan
