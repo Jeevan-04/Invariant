@@ -29,23 +29,23 @@ The system is architected in two planes:
 
 ```mermaid
 graph TD
-    User[User Input] --> Orchestrator{Invariant Orchestrator}
-    Orchestrator --> Policy[Load Policy Rules]
+    User["User Input"] --> Orchestrator{"Invariant Orchestrator"}
+    Orchestrator --> Policy["Load Policy Rules"]
     
     subgraph "Untrusted Space"
-        Model[AI Model (OpenAI/Mistral)]
+        Model["AI Model (OpenAI/Mistral)"]
     end
     
     subgraph "Trusted Space (The Kernel)"
-        Orchestrator --> Kernel[C++ Execution Boundary]
-        Kernel -->|Intercept| TokenStream[Token Stream]
-        TokenStream -->|Check| Inspector{Regex/Logic Check}
-        Inspector -->|Violation| Abort[🛑 KILL PROCESS]
-        Inspector -->|Approved| Output[User Output]
+        Orchestrator --> Kernel["C++ Execution Boundary"]
+        Kernel -->|Intercept| TokenStream["Token Stream"]
+        TokenStream -->|Check| Inspector{"Regex/Logic Check"}
+        Inspector -->|Violation| Abort["🛑 KILL PROCESS"]
+        Inspector -->|Approved| Output["User Output"]
     end
     
-    Output --> Receipt[Generate Receipt]
-    Receipt --> Sign[Ed25519 Signature]
+    Output --> Receipt["Generate Receipt"]
+    Receipt --> Sign["Ed25519 Signature"]
 ```
 
 ### The Mechanism
