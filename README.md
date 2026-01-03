@@ -33,10 +33,16 @@ The Invariant Kernel now intercepts the Model's generation **token by token**.
 If a model starts to say something forbidden, the kernel kills the process mid-sentence. 
 It’s like a neurological filter for AI.
 
+### Phase 10-12: Hardening
+We didn't stop at the boundary.
+*   **Active Defense**: The kernel runs regex checks on the live stream. A "bad thought" is blocked before it forms a complete sentence.
+*   **Native Hashing**: Large context files are hashed in C++, removing Python bottlenecks.
+*   **Signatures**: Every receipt is cryptographically signed (Ed25519). You don't just "trust" the log; you verify the signature.
+
 ## Features
 
 *   **🛡️ Mandatory Policy**: Policies are enforced in C++ (Regex/Logic). 
-*   **🇮🇳 The Patriot Policy Demo**: A demo configuration that strictly allows only pro-India content and blocks mentions of other geopolitical entities. It proves how precise the control can be.
+*   **🇮🇳 The Policy Demo**: A demo configuration that strictly allows only pro-India content and blocks mentions of other geopolitical entities. It proves how precise the control can be.
 *   **📜 Epistemic Receipts**: Every execution generates a `receipt.v1` JSON file. It’s a mathematical guarantee of what happened.
 *   **⏪ Replay Verification**: You can take a receipt from last week and "replay" it. If the context files have changed (drift), the replay fails. It’s a closed loop.
 

@@ -1,4 +1,5 @@
 #include "../runtime/boundary.hpp"
+#include "../runtime/crypto_utils.hpp"
 #include "../runtime/execution_graph.hpp"
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -53,4 +54,8 @@ PYBIND11_MODULE(invariant_enforcement, m) {
       .def("get_output", &ExecutionBoundary::get_output,
            "Get accumulated output")
       .def("seal", &ExecutionBoundary::seal, "Seal and produce proof");
+
+  // Expose Crypto Utils
+  m.def("crypto_hash_file", &invariant::crypto::SHA256::hash_file,
+        "Compute hash of a file efficiently");
 }

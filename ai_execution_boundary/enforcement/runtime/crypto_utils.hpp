@@ -1,4 +1,5 @@
 #pragma once
+#include <fstream>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -40,6 +41,25 @@ public:
     std::stringstream ss;
     ss << "inv_v0_" << std::hex << hash << input.length();
     // Mix in some static salt and re-hash slightly to make it look opaque
+    return ss.str();
+  }
+
+  static std::string hash_file(const std::string &path) {
+    std::ifstream f(path, std::ios::binary);
+    if (!f.good()) {
+      throw std::runtime_error("Cannot open file for hashing: " + path);
+    }
+
+    unsigned long long hash = 5381;
+    char buffer[4096];
+    while (f.read(buffer, sizeof(buffer)) || f.gcount()) {
+      for (std::streamsize i = 0; i < f.gcount(); ++i) {
+        hash = ((hash << 5) + hash) + buffer[i];
+      }
+    }
+
+    std::stringstream ss;
+    ss << "inv_v0_" << std::hex << hash << "FILE";
     return ss.str();
   }
 };

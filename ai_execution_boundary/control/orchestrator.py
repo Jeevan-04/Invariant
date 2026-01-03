@@ -2,6 +2,8 @@ import os
 import sys
 import hashlib
 from typing import Optional, Dict, Any, Iterator
+from cryptography.hazmat.primitives.asymmetric import ed25519
+from cryptography.hazmat.primitives import serialization
 
 # Adjust path to find the control module if needed
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
@@ -29,6 +31,9 @@ except ImportError:
 class Invariant:
     def __init__(self):
         self.boundary = enforcement.ExecutionBoundary()
+        self.private_key = ed25519.Ed25519PrivateKey.generate()
+        self.public_key = self.private_key.public_key()
+        print(f"[Invariant] Node Identity Key Generated: {self.public_key.public_bytes(encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw).hex()[:16]}...")
 
     def execute(self, 
                 input_payload: str,
@@ -79,10 +84,10 @@ class Invariant:
                  path = s.identifier
                  if os.path.exists(path):
                      try:
-                         with open(path, "rb") as f:
-                             file_hash = hashlib.sha256(f.read()).hexdigest()
-                             computed_hash = file_hash
-                             print(f"[Invariant] Context Hash Computed: {path} -> {file_hash[:8]}...")
+                         # Use Native C++ Hashing for scalability
+                         file_hash = enforcement.crypto_hash_file(path)
+                         computed_hash = file_hash
+                         print(f"[Invariant] Context Hash Computed (Native): {path} -> {file_hash[:12]}...")
                      except Exception as e:
                          print(f"[Invariant] Warning: Could not hash context file {path}: {e}")
                          computed_hash = "ERROR_HASH"
@@ -180,7 +185,12 @@ class Invariant:
                 "output": result["output"]
             },
             "integrity": {
-                "signatures": [] # Placeholder for future crypto-signatures
+                "signatures": [{
+                    "algo": "ed25519",
+                    "pub_key": self.public_key.public_bytes(encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw).hex(),
+                    "signature": self.private_key.sign(result["proof"].encode("utf-8")).hex(),
+                    "signed_field": "meta.proof_id"
+                }] 
             }
         }
         

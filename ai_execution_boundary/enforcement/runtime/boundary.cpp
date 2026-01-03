@@ -187,9 +187,33 @@ void ExecutionBoundary::start(const std::string &input_payload) {
 }
 
 bool ExecutionBoundary::step(const std::string &token) {
-  // V0: Append token. Future: Check token against policy (e.g. pattern matching
-  // on buffer)
   pimpl->last_output += token;
+
+  // ACTIVE KERNEL LOGIC: Check policy on every step
+  for (const auto &rule : pimpl->active_rules) {
+    if (rule.type == "deny_regex") {
+      try {
+        // In a real optimized kernel, we wouldn't re-compile regex every token.
+        // We would compile them once in load_policy.
+        // For V0 Safety Demo, this is acceptable.
+        std::regex re(rule.pattern, std::regex_constants::icase);
+        if (std::regex_search(pimpl->last_output, re)) {
+          std::cout << "[Invariant] \033[1;31mKERNEL INTERVENTION\033[0m: "
+                       "Stream matched deny_regex '"
+                    << rule.pattern << "'" << std::endl;
+          return false; // ABORT EXECUTION
+        }
+      } catch (...) {
+        // Fallback simple find if regex fails
+        if (pimpl->last_output.find(rule.pattern) != std::string::npos) {
+          std::cout << "[Invariant] \033[1;31mKERNEL INTERVENTION\033[0m: "
+                       "Stream matched pattern '"
+                    << rule.pattern << "'" << std::endl;
+          return false;
+        }
+      }
+    }
+  }
   return true;
 }
 

@@ -2,11 +2,11 @@
   "schema": "invariant.receipt.v1",
   "meta": {
     "engine_version": "0.1.0",
-    "timestamp": "2026-01-03T18:16:41.022326Z",
-    "proof_id": "inv_v0_17a7c32ee144c1cae9"
+    "timestamp": "2026-01-03T19:22:11.140121Z",
+    "proof_id": "inv_v0_e25275bbacbf8f17c4"
   },
   "graph": {
-    "id": "ff395f18fb47bcdc8d2c1d14812af04cbdef418a2090dea65385d916f37e4881",
+    "id": "ed11eee12a303fc1f930048504c8c955cf0e71a0ea300516cb723a9392d921fb",
     "identity": {
       "user_id": "jeevan",
       "role": "auditor",
@@ -29,7 +29,7 @@
           "type": "file",
           "sensitivity": "internal",
           "identifier": "demo_ctx.txt",
-          "content_hash": "ebc42dff39ac139b47b189d8c431453b70cc6d20d09e0ee7de83f52b0987e3cb"
+          "content_hash": "inv_v0_9917385a124fd250FILE"
         }
       ]
     }
@@ -39,6 +39,13 @@
     "output": "Execution is proceeding normally. "
   },
   "integrity": {
-    "signatures": []
+    "signatures": [
+      {
+        "algo": "ed25519",
+        "pub_key": "018d0bd49254cd1b47f3b8d242fb7e36900e89ccc6a86d028e740c05a831aab9",
+        "signature": "89abe1a80e838e2ab62eeb436643ac6817f9051597e0ab2a1ed43234ec3f150821a81f13e598eb068519099de1b6e910fac54a01c5f94e2675d8cc40ac4dbd04",
+        "signed_field": "meta.proof_id"
+      }
+    ]
   }
 }
