@@ -1,21 +1,22 @@
 # Invariant: A Causality-Bound Execution Kernel for Large Language Models
 
 **Abstract**  
-Current AI safety approaches rely on *probabilistic alignment*—training models to "refuse" harmful requests. This approach is brittle; it fails when models hallucinate, are jailbroken, or simply drift. **Invariant** proposes a deterministic alternative: an **Execution Kernel**. By intercepting the token stream at the C++ level, Invariant treats the AI model as an untrusted compute unit, enforcing constraints physically rather than semantically. This system produces a cryptographically signed "Proof of Execution" for every interaction, moving AI accountability from "trust" to "verification".
+Current AI safety approaches rely on *probabilistic alignment*—training models to "refuse" harmful requests. This approach is brittle; it fails when models hallucinate, are jailbroken, or simply drift. **Invariant** proposes a deterministic alternative: an **Execution Kernel**. By intercepting the token stream at the C++ level, Invariant treats the AI model as an untrusted compute unit, enforcing constraints *architecturally* rather than semantically. This system produces a cryptographically signed "Proof of Execution" for every interaction, moving AI accountability from "trust" to "verification".
 
 ---
 
-## 1. Introduction: The Black Box Problem
+## 1. Introduction: The Reference Monitor
 
-Imagine you hire a brilliant but unpredictable writer. They work so fast you can't read what they write until it's finished. Sometimes they write a masterpiece; sometimes they reveal your company's secrets.
+Invariant is not a wrapper. It is a **Reference Monitor**.
 
-Currently, the industry tries to solve this by giving the writer a stern lecture before they start ("Please be nice"). This is called **Safety Prompting**. It doesn't work because the writer (the AI) can be tricked, confused, or simply ignore the instructions.
+Just as an Operating System Kernel stops a user-space program from crashing memory regardless of the program's intent, Invariant stops an AI model from violating policy regardless of its training.
 
-**Invariant takes a different approach.** 
-It doesn't lecture the writer. Instead, it stands over their shoulder and watches the pen hit the paper. The moment the pen tries to write a forbidden word, Invariant grabs the hand and stops it.
+Current methods act like **Safety Prompting** ("Please be nice").
+Invariant acts like a **Kernel Panic**.
 
-This is not a "wrapper". It is an **Operating System Kernel**. 
-Just as Linux stops a program from crashing your RAM, Invariant stops an AI from violating reality.
+It does not reason about the "truth" of the output. It enforces strict constraints on the execution trace itself. If a forbidden pattern triggers the logic gate, the stream is aborted immediately.
+
+*Invariant is a reference monitor for AI execution, not a judge of AI behavior.*
 
 ---
 
@@ -40,7 +41,7 @@ graph TD
         Orchestrator --> Kernel["C++ Execution Boundary"]
         Kernel -->|Intercept| TokenStream["Token Stream"]
         TokenStream -->|Check| Inspector{"Regex/Logic Check"}
-        Inspector -->|Violation| Abort["🛑 KILL PROCESS"]
+        Inspector -->|Violation| Abort["🛑 ABORT STREAM"]
         Inspector -->|Approved| Output["User Output"]
     end
     
@@ -50,7 +51,8 @@ graph TD
 
 ### The Mechanism
 1.  **Interception**: The kernel wraps the model's output stream. The model does not speak to the user; it speaks to the Kernel.
-2.  **Inspection**: Every byte is buffered and checked against the active Policy (compiled C++ regex in this V0 implementation).
+2.  **Inspection**: Every byte is buffered and checked against the active Policy.
+    *   *Note: Invariant does not reason about truth; it enforces constraints on execution traces.*
 3.  **Intervention**: If a violation is detected (e.g., a "Hypothetical" in a Reality-Only policy), the Kernel aborts the stream immediately. The user never sees the completion.
 4.  **Attestation**: The system hashes the Input, Policy, Model ID, and Code Version into a `ProofID`. This is cryptographically signed, creating an immutable receipt.
 
@@ -58,7 +60,7 @@ graph TD
 
 ## 3. Methodology: 12 Phases of Development
 
-We built Invariant in a strict, layered progression to ensure rigorous isolation of concerns.
+We built Invariant in a strict, layered progression. The critical breakthrough occurred at **Phase 8**, moving from post-hoc checks to real-time stream control.
 
 **Phase 1: The Boundary**  
 Decoupled the Python Control Plane from the C++ Enforcement Plane. Established the `ExecutionGraph` as the single source of truth.
@@ -67,7 +69,7 @@ Decoupled the Python Control Plane from the C++ Enforcement Plane. Established t
 Implemented `invariant.receipt.v0`. Every execution is hashed. If you change one bit of the policy, the Proof ID changes completely.
 
 **Phase 3: The Model Adapter**  
-Created a standardized interface for models (Mock, OpenAI, OpenRouter), essentially writing "Drivers" for our OS.
+Created a standardized interface for models (Mock, OpenAI, OpenRouter).
 
 **Phase 4: Policy Engine v0**  
 Implemented strict text-matching constraints within the C++ boundary.
@@ -106,16 +108,29 @@ To demonstrate the Kernel's capability, we implemented an intentionally restrict
 *   **Method**: The Kernel scans for speculative grammar (`would be`, `could be`, `imagine`).
 *   **Result**: Even if the user begs the AI to write fiction, the Kernel intercepts the output and terminates the response.
 
-*Note: This policy is arbitrary. It exists to prove that the reasoning space of an LLM can be bounded structurally.*
+*Note: The policy language is intentionally simplistic regex; the contribution lies in the enforcement point (the kernel), not the expressiveness of the rule. This demonstrates that the reasoning space of an LLM can be bounded structurally.*
+
+### Why Regex? (The "Hello World" of Compliance)
+We use regular expressions in this demo because they are **transparent**. You can see exactly *why* a token was blocked. **Do not confuse the configuration with the machinery.** The Invariant Kernel is agnostic. In production, policies can be formal verification specifications or neural classifier decisions.
 
 ---
 
-## 5. Usage
+## 5. Non-Goals
+
+Invariant is a specific architectural solution. It is:
+
+*   ❌ **NOT a replacement for model training**: It enforces constraints, it does not teach concepts.
+*   ❌ **NOT an alignment technique**: It prevents actions, it does not change the model's values.
+*   ❌ **NOT semantic understanding**: The kernel does not "understand" the output; it inspects the trace.
+*   ❌ **NOT a moderation framework**: It is an execution boundary, which is lower-level than moderation.
+
+---
+
+## 6. Usage
 
 ### Prerequisites
 *   Python 3.10+
 *   C++ Compiler (Clang/GCC)
-*   `pip install poetry` (or standard requirements)
 
 ### Running the Kernel
 ```bash
