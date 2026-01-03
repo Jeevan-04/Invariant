@@ -126,7 +126,18 @@ Invariant is a specific architectural solution. It is:
 
 ---
 
-## 6. Usage
+## 6. Threat Model (V1)
+
+In this reference implementation, our security assumptions are:
+
+*   **The Model is Untrusted (Adversary)**: The system assumes the AI model is compromised, hallucinating, or actively malicious. The Kernel does not trust the token stream.
+*   **The Kernel is Trusted (TCB)**: The C++ Enforcement Boundary is assumed to be running on a secure host. It is the root of trust for the `ProofID`.
+*   **The Host is Trusted**: We do not currently model attacks against the host OS (e.g., memory corruption, side-channels).
+*   **Scope**: Invariant protects *execution integrity* independent of the model's internal state.
+
+---
+
+## 7. Usage
 
 ### Prerequisites
 *   Python 3.10+
