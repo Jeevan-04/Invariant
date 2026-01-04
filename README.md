@@ -160,8 +160,3 @@ To mathematically prove an interaction happened as claimed:
 ```bash
 python3 replay.py demo_receipt.json
 ```
-
----
-
-**License**: MIT  
-**Authors**: Jeevan
