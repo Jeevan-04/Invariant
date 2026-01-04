@@ -1,5 +1,8 @@
 # Invariant: A Causality-Bound Execution Kernel for Large Language Models
 
+## Deterministic execution kernel for LLMs with cryptographic proof of admissibility.
+
+
 **Abstract**  
 Current AI safety approaches rely on *probabilistic alignment*—training models to "refuse" harmful requests. This approach is brittle; it fails when models hallucinate, are jailbroken, or simply drift. **Invariant** proposes a deterministic alternative: an **Execution Kernel**. By intercepting the token stream at the **native enforcement boundary**, Invariant treats the AI model as an untrusted compute unit, enforcing constraints *architecturally* rather than semantically. This system produces a cryptographically signed "Proof of Execution" for every interaction, moving AI accountability from "trust" to "verification".
 
